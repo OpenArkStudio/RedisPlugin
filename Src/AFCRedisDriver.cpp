@@ -91,24 +91,7 @@ bool AFCRedisDriver::enable()
 	return mbEnable;
 }
 
-//const std::string & AFCRedisDriver::GetIP()
-//{
-//	//TODO
-//	return NULL_STR;
-//}
-//
-//int AFCRedisDriver::GetPort()
-//{
-//	return 0;
-//}
-//
-//const std::string & AFCRedisDriver::GetAuthKey()
-//{
-//    //TODO
-//	return NULL_STR;
-//}
-
-bool AFCRedisDriver::del(const std::string & strKey)
+bool AFCRedisDriver::DEL(const std::string& key)
 {
 	if (!enable())
 	{
@@ -116,13 +99,13 @@ bool AFCRedisDriver::del(const std::string & strKey)
 	}
 
     aredis::redis_command cmd;
-    cmd.cmd("DEL", strKey);
+    cmd.cmd("DEL", key);
     m_pRedisClient->command(cmd);
     aredis::resp_result result;
     return m_pRedisClient->reply(result);
 }
 
-bool AFCRedisDriver::exists(const std::string & strKey)
+bool AFCRedisDriver::EXISTS(const std::string& key)
 {
 	if (!enable())
 	{
@@ -130,13 +113,13 @@ bool AFCRedisDriver::exists(const std::string & strKey)
 	}
 
     aredis::redis_command cmd;
-    cmd.cmd("EXISTS", strKey);
+    cmd.cmd("EXISTS", key);
     m_pRedisClient->command(cmd);
     aredis::resp_result result;
     return m_pRedisClient->reply(result);
 }
 
-bool AFCRedisDriver::expire(const std::string & strKey, uint32_t seconds)
+bool AFCRedisDriver::EXPIRE(const std::string& key, uint32_t seconds)
 {
 	if (!enable())
 	{
@@ -144,13 +127,13 @@ bool AFCRedisDriver::expire(const std::string & strKey, uint32_t seconds)
 	}
 
     aredis::redis_command cmd;
-    cmd.cmd("EXPIRE", strKey, seconds);
+    cmd.cmd("EXPIRE", key, seconds);
     m_pRedisClient->command(cmd);
     aredis::resp_result result;
     return m_pRedisClient->reply(result);
 }
 
-bool AFCRedisDriver::expireat(const std::string& strKey, int timestamp)
+bool AFCRedisDriver::EXPIREAT(const std::string& key, int timestamp)
 {
     if (!enable())
     {
@@ -158,577 +141,197 @@ bool AFCRedisDriver::expireat(const std::string& strKey, int timestamp)
     }
 
     aredis::redis_command cmd;
-    cmd.cmd("EXPIREAT", strKey, timestamp);
+    cmd.cmd("EXPIREAT", key, timestamp);
     m_pRedisClient->command(cmd);
     aredis::resp_result result;
     return m_pRedisClient->reply(result);
 }
 
-bool AFCRedisDriver::set(const std::string& strKey, const std::string& strValue)
+bool AFCRedisDriver::SET(const std::string& key, const std::string& value)
 {
-	if (!enable())
-	{
-		return false;
-	}
-
+    if (!enable())
+    {
+    	return false;
+    }
+    
     aredis::redis_command cmd;
-    cmd.cmd("SET", strKey, strValue);
+    cmd.cmd("SET", key, value);
     m_pRedisClient->command(cmd);
     aredis::resp_result result;
     return m_pRedisClient->reply(result);
 }
 
-bool AFCRedisDriver::Get(const std::string & strKey, std::string & strValue)
+bool AFCRedisDriver::GET(const std::string& key, OUT std::string& value)
 {
-	if (!enable())
-	{
-		return false;
-	}
-
+    if (!enable())
+    {
+    	return false;
+    }
+    
     aredis::redis_command cmd;
-    cmd.cmd("GET", strKey, strValue);
+    cmd.cmd("GET", key);
     m_pRedisClient->command(cmd);
     aredis::resp_result result;
     if (m_pRedisClient->reply(result))
     {
-        strValue = result.dump();
+        value = result.dump();
         return true;
     }
-
+    
     return false;
 }
 
-bool AFCRedisDriver::SetNX(const std::string & strKey, const std::string & strValue)
+bool AFCRedisDriver::SETNX(const std::string& key, const std::string& value)
 {
-	if (!enable())
-	{
-		return false;
-	}
-
-	try
-	{
-		return m_pNoSqlClient->setnx(strKey, strValue);
-	}
-	REDIS_CATCH(__FUNCTION__, __LINE__);
-
-	return false;
+    return false;
 }
 
-bool AFCRedisDriver::SetEX(const std::string & strKey, const std::string & strValue, const unsigned int nSeconds)
+bool AFCRedisDriver::SETEX(const std::string& key, const std::string& value, const uint32_t seconds)
 {
-	if (!enable())
-	{
-		return false;
-	}
-
-	try
-	{
-		m_pNoSqlClient->setex(strKey, strValue, nSeconds);
-		return true;
-	}
-	REDIS_CATCH(__FUNCTION__, __LINE__);
-
-	return false;
+    return false;
 }
 
-bool AFCRedisDriver::HSet(const std::string & strKey, const std::string & strField, const std::string & strValue)
+bool AFCRedisDriver::HSET(const std::string& key, const std::string& field, const std::string& value)
 {
-	if (!enable())
-	{
-		return false;
-	}
-
-	if (strKey.empty() || strField.empty())
-	{
-		return false;
-	}
-	try
-	{
-		m_pNoSqlClient->hset(strKey, strField, strValue);
-		return true;
-	}
-	REDIS_CATCH(__FUNCTION__, __LINE__);
-
-	return false;
+    return false;
 }
 
-bool AFCRedisDriver::HGet(const std::string & strKey, const std::string & strField, std::string & strValue)
+bool AFCRedisDriver::HGET(const std::string& key, const std::string& field, OUT std::string& value)
 {
-	if (!enable())
-	{
-		return false;
-	}
-
-	try
-	{
-		strValue = m_pNoSqlClient->hget(strKey, strField);
-		return true;
-	}
-	REDIS_CATCH(__FUNCTION__, __LINE__);
-	return false;
+    return false;
 }
 
-bool AFCRedisDriver::HMSet(const std::string & strKey, const std::vector<std::string>& fieldVec, const std::vector<std::string>& valueVec)
+bool AFCRedisDriver::HMSET(const std::string& key, const std::vector<std::string>& fields, const std::vector<std::string>& values)
 {
-	if (!enable())
-	{
-		return false;
-	}
-
-	if (strKey.empty() <= 0 || fieldVec.size() != valueVec.size())
-	{
-		return false;
-	}
-
-	try
-	{
-		m_pNoSqlClient->hmset(strKey, fieldVec, valueVec);
-		return true;
-	}
-	REDIS_CATCH(__FUNCTION__, __LINE__);
-
-	return false;
+    return false;
 }
 
-bool AFCRedisDriver::HMGet(const std::string & strKey, const std::vector<std::string>& fieldVec, std::vector<std::string>& valueVec)
+bool AFCRedisDriver::HMGET(const std::string& key, const std::vector<std::string>& fields, OUT std::vector<std::string>& values)
 {
-	if (!enable())
-	{
-		return false;
-	}
-
-	try
-	{
-		m_pNoSqlClient->hmget(strKey, fieldVec, valueVec);
-
-		return fieldVec.size() == valueVec.size();
-	}
-	REDIS_CATCH(__FUNCTION__, __LINE__);
-
-
-	return false;
+    return false;
 }
 
-bool AFCRedisDriver::HExists(const std::string & strKey, const std::string & strField)
+bool AFCRedisDriver::HEXISTS(const std::string& key, const std::string& fields)
 {
-	if (!enable())
-	{
-		return false;
-	}
-
-	try
-	{
-		return m_pNoSqlClient->hexists(strKey, strField);
-	}
-	REDIS_CATCH(__FUNCTION__, __LINE__);
-
-	return false;
+    return false;
 }
 
-bool AFCRedisDriver::HDel(const std::string & strKey, const std::string & strField)
+bool AFCRedisDriver::HDEL(const std::string& key, const std::string& fields)
 {
-	if (!enable())
-	{
-		return false;
-	}
-
-	try
-	{
-		return m_pNoSqlClient->hdel(strKey, strField);
-	}
-
-	REDIS_CATCH(__FUNCTION__, __LINE__);
-
-	return false;
+    return false;
 }
 
-bool AFCRedisDriver::HLength(const std::string & strKey, int & nLen)
+bool AFCRedisDriver::HLEN(const std::string& key, OUT int& length)
 {
-	if (!enable())
-	{
-		return false;
-	}
-
-	try
-	{
-		nLen = m_pNoSqlClient->hlen(strKey);
-		return true;
-	}
-	REDIS_CATCH(__FUNCTION__, __LINE__);
-	return false;
+    return false;
 }
 
-bool AFCRedisDriver::HKeys(const std::string & strKey, std::vector<std::string>& fieldVec)
+bool AFCRedisDriver::HKEYS(const std::string& key, OUT std::vector<std::string>& fields)
 {
-	if (!enable())
-	{
-		return false;
-	}
-
-	try
-	{
-		m_pNoSqlClient->hkeys(strKey, fieldVec);
-		return true;
-	}
-	REDIS_CATCH(__FUNCTION__, __LINE__);
-
-	return false;
+    return false;
 }
 
-bool AFCRedisDriver::HValues(const std::string & strKey, std::vector<std::string>& valueVec)
+bool AFCRedisDriver::HVALS(const std::string& key, OUT std::vector<std::string>& values)
 {
-	if (!enable())
-	{
-		return false;
-	}
-
-	try
-	{
-		m_pNoSqlClient->hvals(strKey, valueVec);
-		return true;
-	}
-	REDIS_CATCH(__FUNCTION__, __LINE__);
-
-	return false;
+    return false;
 }
 
-bool AFCRedisDriver::HGetAll(const std::string & strKey, std::vector<std::pair<std::string, std::string>>& valueVec)
+bool AFCRedisDriver::HGETALL(const std::string& key, OUT std::vector<std::pair<std::string, std::string>>& values)
 {
-	if (!enable())
-	{
-		return false;
-	}
-
-	try
-	{
-		m_pNoSqlClient->hgetall(strKey, valueVec);
-		return true;
-	}
-	REDIS_CATCH(__FUNCTION__, __LINE__);
-	return false;
+    return false;
 }
 
-bool AFCRedisDriver::ZAdd(const std::string & strKey, const double nScore, const std::string & strData)
+bool AFCRedisDriver::RPUSH(const std::string& key, const std::string& value)
 {
-	if (!enable())
-	{
-		return false;
-	}
-
-	try
-	{
-		m_pNoSqlClient->zadd(strKey, nScore, strData);
-		return true;
-	}
-	REDIS_CATCH(__FUNCTION__, __LINE__);
-
-	return false;
+    return false;
 }
 
-bool AFCRedisDriver::ZIncrBy(const std::string & strKey, const std::string & strMember, const double nIncrement)
+bool AFCRedisDriver::RPOP(const std::string& key, std::string& value)
 {
-	if (!enable())
-	{
-		return false;
-	}
-
-	try
-	{
-		m_pNoSqlClient->zincrby(strKey, strMember, nIncrement);
-		return true;
-	}
-	REDIS_CATCH(__FUNCTION__, __LINE__);
-
-	return false;
+    return false;
 }
 
-bool AFCRedisDriver::ZRem(const std::string & strKey, const std::string & strMember)
+bool AFCRedisDriver::LRANGE(const std::string& key, const int start, const int end, OUT std::vector<std::string>& elements)
 {
-	if (!enable())
-	{
-		return false;
-	}
-
-	try
-	{
-		m_pNoSqlClient->zrem(strKey, strMember);
-		return true;
-	}
-	REDIS_CATCH(__FUNCTION__, __LINE__);
-
-	return false;
+    return false;
 }
 
-bool AFCRedisDriver::ZRemRangeByRank(const std::string & strKey, const int nStart, const int nStop)
+bool AFCRedisDriver::LLEN(const std::string& key, OUT int& length)
 {
-	if (!enable())
-	{
-		return false;
-	}
-
-	try
-	{
-		m_pNoSqlClient->zremrangebyrank(strKey, nStart, nStop);
-		return true;
-	}
-	REDIS_CATCH(__FUNCTION__, __LINE__);
-	return false;
+    return false;
 }
 
-bool AFCRedisDriver::ZRemRangeByScore(const std::string & strKey, const int nMin, const int nMax)
+bool AFCRedisDriver::LINDEX(const std::string& key, const int index, OUT std::string& value)
 {
-	if (!enable())
-	{
-		return false;
-	}
-
-	try
-	{
-		m_pNoSqlClient->zremrangebyscore(strKey, nMin, nMax);
-		return true;
-	}
-	REDIS_CATCH(__FUNCTION__, __LINE__);
-	return false;
+    return false;
 }
 
-bool AFCRedisDriver::ZScore(const std::string & strKey, const std::string & strMember, double & nScore)
+bool AFCRedisDriver::LREM(const std::string& key, const int count, const std::string& value)
 {
-	if (!enable())
-	{
-		return false;
-	}
-
-	try
-	{
-		nScore = m_pNoSqlClient->zscore(strKey, strMember);
-		return true;
-	}
-	REDIS_CATCH(__FUNCTION__, __LINE__);
-	return false;
+    return false;
 }
 
-bool AFCRedisDriver::ZCard(const std::string & strKey, int & nCount)
+bool AFCRedisDriver::LSET(const std::string& key, const int count, const std::string& value)
 {
-	if (!enable())
-	{
-		return false;
-	}
-
-	try
-	{
-		nCount = m_pNoSqlClient->zcard(strKey);
-		return true;
-	}
-	REDIS_CATCH(__FUNCTION__, __LINE__);
-	return false;
+    return false;
 }
 
-bool AFCRedisDriver::ZCount(const std::string & strKey, const int nMin, const int nMax, int & nCount)
+bool AFCRedisDriver::LTRIM(const std::string& key, const int start, const int end)
 {
-	if (!enable())
-	{
-		return false;
-	}
-
-	try
-	{
-		nCount = m_pNoSqlClient->zcount(strKey, nMin, nMax);
-		return true;
-	}
-	REDIS_CATCH(__FUNCTION__, __LINE__);
-
-	return false;
+    return false;
 }
 
-bool AFCRedisDriver::ZRevRange(const std::string & strKey, const int nStart, const int nStop, std::vector<std::pair<std::string, double>>& memberScoreVec)
+bool AFCRedisDriver::ZADD(const std::string& key, const double score, const std::string& member)
 {
-	if (!enable())
-	{
-		return false;
-	}
-
-	try
-	{
-		m_pNoSqlClient->zrevrange(strKey, nStart, nStop, memberScoreVec);
-		return true;
-
-	}
-	REDIS_CATCH(__FUNCTION__, __LINE__);
-
-	return false;
+    return false;
 }
 
-bool AFCRedisDriver::ZRangeByScore(const std::string & strKey, const int nMin, const int nMax, std::vector<std::pair<std::string, double>>& memberScoreVec)
+bool AFCRedisDriver::ZCARD(const std::string& key, OUT int& count)
 {
-	if (!enable())
-	{
-		return false;
-	}
-
-	try
-	{
-		m_pNoSqlClient->zrangebyscore(strKey, (double)nMin, (double)nMax, memberScoreVec);
-		return true;
-	}
-	REDIS_CATCH(__FUNCTION__, __LINE__);
-
-	return false;
+    return false;
 }
 
-bool AFCRedisDriver::ZRevRank(const std::string & strKey, const std::string & strMember, int & nRank)
+bool AFCRedisDriver::ZCOUNT(const std::string& key, const int min, const int max, OUT int& count)
 {
-	if (!enable())
-	{
-		return false;
-	}
-
-	try
-	{
-		nRank = m_pNoSqlClient->zrevrank(strKey, strMember);
-		return true;
-	}
-	REDIS_CATCH(__FUNCTION__, __LINE__);
-
-	return false;
+    return false;
 }
 
-bool AFCRedisDriver::ListPush(const std::string & strKey, const std::string & strValue)
+bool AFCRedisDriver::ZINCRBY(const std::string& key, const double increment, const std::string& member)
 {
-	if (!enable())
-	{
-		return false;
-	}
-	try
-	{
-
-		m_pNoSqlClient->rpush(strKey, strValue);
-		return true;
-
-	}
-	REDIS_CATCH(__FUNCTION__, __LINE__);
-
-	return false;
+    return false;
 }
 
-bool AFCRedisDriver::ListPop(const std::string & strKey, std::string & strValue)
+bool AFCRedisDriver::ZREM(const std::string& key, const std::string& member)
 {
-	if (!enable())
-	{
-		return false;
-	}
-
-	try
-	{
-
-		strValue = m_pNoSqlClient->rpop(strKey);
-		return true;
-
-	}
-	REDIS_CATCH(__FUNCTION__, __LINE__);
-	return false;
+    return false;
 }
 
-bool AFCRedisDriver::ListRange(const std::string & strKey, const int nStar, const int nEnd, std::vector<std::string>& xList)
+bool AFCRedisDriver::ZREMRANGEBYRANK(const std::string& key, const int start, const int stop)
 {
-	if (!enable())
-	{
-		return false;
-	}
-
-	try
-	{
-
-		m_pNoSqlClient->lrange(strKey, nStar, nEnd, xList);
-		return true;
-	}
-	REDIS_CATCH(__FUNCTION__, __LINE__);
-	return false;
+    return false;
 }
 
-bool AFCRedisDriver::ListLen(const std::string & strKey, int & nLength)
+bool AFCRedisDriver::ZREMRANGEBYSCORE(const std::string& key, const int min, const int max)
 {
-	if (!enable())
-	{
-		return false;
-	}
-
-	try
-	{
-		nLength = m_pNoSqlClient->llen(strKey);
-		return true;
-	}
-	REDIS_CATCH(__FUNCTION__, __LINE__);
-
-	return false;
+    return false;
 }
 
-bool AFCRedisDriver::ListIndex(const std::string & strKey, const int nIndex, std::string & strValue)
+bool AFCRedisDriver::ZREVRANGE(const std::string& key, const int start, const int stop, OUT std::vector<std::pair<std::string, double>>& member_scores)
 {
-	if (!enable())
-	{
-		return false;
-	}
-
-	try
-	{
-		strValue = m_pNoSqlClient->lindex(strKey, nIndex);
-		return true;
-	}
-	REDIS_CATCH(__FUNCTION__, __LINE__);
-
-
-	return false;
+    return false;
 }
 
-bool AFCRedisDriver::ListRem(const std::string & strKey, const int nCount, const std::string & strValue)
+bool AFCRedisDriver::ZREVRANK(const std::string& key, const std::string& strMember, int& nRank)
 {
-	if (!enable())
-	{
-		return false;
-	}
-
-	try
-	{
-
-		m_pNoSqlClient->lrem(strKey, nCount, strValue);
-		return true;
-	}
-	REDIS_CATCH(__FUNCTION__, __LINE__);
-
-	return false;
+    return false;
 }
 
-bool AFCRedisDriver::ListSet(const std::string & strKey, const int nCount, const std::string & strValue)
+bool AFCRedisDriver::ZRANGEBYSCORE(const std::string& key, const int min, const int max, OUT std::vector<std::pair<std::string, double>>& member_scores)
 {
-	if (!enable())
-	{
-		return false;
-	}
-
-	try
-	{
-
-		m_pNoSqlClient->lset(strKey, nCount, strValue);
-		return true;
-
-	}
-	REDIS_CATCH(__FUNCTION__, __LINE__);
-
-	return false;
+    return false;
 }
 
-bool AFCRedisDriver::ListTrim(const std::string & strKey, const int nStar, const int nEnd)
+bool AFCRedisDriver::ZSCORE(const std::string& key, const std::string& member, OUT double& score)
 {
-	if (!enable())
-	{
-		return false;
-	}
-
-	try
-	{
-		m_pNoSqlClient->ltrim(strKey, nStar, nEnd);
-		return true;
-	}
-	REDIS_CATCH(__FUNCTION__, __LINE__);
-	return false;
+    return false;
 }

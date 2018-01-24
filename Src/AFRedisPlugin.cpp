@@ -1,41 +1,57 @@
-// NFDataBasePlugin.cpp : Defines the exported functions for the DLL application.
-//
+/*
+* This source file is part of ArkGameFrame
+* For the latest info, see https://github.com/ArkGame
+*
+* Copyright (c) 2013-2017 ArkGame authors.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*
+*/
 
-//#include "stdafx.h"
-#include "NFNoSqlPlugin.h"
-#include "NFCNoSqlModule.h"
+#include "AFRedisPlugin.h"
+#include "AFCRedisModule.h"
 
-#ifdef NF_DYNAMIC_PLUGIN
+#ifdef ARK_DYNAMIC_PLUGIN
 
-NF_EXPORT void DllStartPlugin(NFIPluginManager* pm)
+ARK_EXPORT void DllStartPlugin(AFIPluginManager* pm)
 {
-    CREATE_PLUGIN(pm, NFNoSqlPlugin)
+    CREATE_PLUGIN(pm, AFRedisPlugin)
 };
 
-NF_EXPORT void DllStopPlugin(NFIPluginManager* pm)
+ARK_EXPORT void DllStopPlugin(AFIPluginManager* pm)
 {
-    DESTROY_PLUGIN(pm, NFNoSqlPlugin)
+    DESTROY_PLUGIN(pm, AFRedisPlugin)
 };
 
 #endif
 //////////////////////////////////////////////////////////////////////////
 
-const int NFNoSqlPlugin::GetPluginVersion()
+int AFRedisPlugin::GetPluginVersion()
 {
     return 0;
 }
 
-const std::string NFNoSqlPlugin::GetPluginName()
+const std::string AFRedisPlugin::GetPluginName()
 {
-    return GET_CLASS_NAME(NFNoSqlPlugin)
+    return GET_CLASS_NAME(AFRedisPlugin)
 }
 
-void NFNoSqlPlugin::Install()
+void AFRedisPlugin::Install()
 {
-    REGISTER_MODULE(pPluginManager, NFINoSqlModule, NFCNoSqlModule)
+    REGISTER_MODULE(pPluginManager, AFIRedisModule, AFCRedisModule)
 }
 
-void NFNoSqlPlugin::Uninstall()
+void AFRedisPlugin::Uninstall()
 {
-    UNREGISTER_MODULE(pPluginManager, NFINoSqlModule, NFCNoSqlModule)
+    UNREGISTER_MODULE(pPluginManager, AFIRedisModule, AFCRedisModule)
 }

@@ -32,76 +32,54 @@ public:
     virtual bool connect(const std::string& ip, const uint16_t nPort = 6379, const std::string& auth = NULL_STR, const uint8_t db_index = 1);
     virtual bool enable();
 
-	//virtual const std::string& GetIP();
-	//virtual const int GetPort();
-	//virtual const std::string&  GetAuthKey();
+    //////////////////////////////////////////////////////////////////////////
+    //Key
+	virtual bool DEL(const std::string& key);
+	virtual bool EXISTS(const std::string& key);
+	virtual bool EXPIRE(const std::string& key, const uint32_t seconds);
+	virtual bool EXPIREAT(const std::string& key, const int timestamp);
 
-	virtual bool del(const std::string& strKey);
-	virtual bool exists(const std::string& strKey);
-	virtual bool expire(const std::string& strKey, uint32_t seconds);
-	virtual bool expireat(const std::string& strKey, int timestamp);
-
-	///////////////////////////////////////////////////////////
-
-	virtual bool set(const std::string& strKey, const std::string& strValue);
-	virtual bool Get(const std::string& strKey, std::string& strValue);
-
-	///////////////////////////////////////////////////////////
-
-	//SET if Not eXists
-	virtual bool SetNX(const std::string& strKey, const std::string& strValue);
-	//set key->value and set Expire time
-	virtual bool SetEX(const std::string& strKey, const std::string& strValue, const unsigned int nSeconds);
-
-    virtual bool HSet(const std::string& strKey, const std::string& strField, const std::string& strValue);
-    virtual bool HGet(const std::string& strKey, const std::string& strField, std::string& strValue);
-    virtual bool HMSet(const std::string& strKey, const std::vector<std::string>& fieldVec, const std::vector<std::string>& valueVec);
-    virtual bool HMGet(const std::string& strKey, const std::vector<std::string>& fieldVec, std::vector<std::string>& valueVec);
-
-    virtual bool HExists(const std::string& strKey, const std::string& strField);
-    virtual bool HDel(const std::string& strKey, const std::string& strField);
-    virtual bool HLength(const std::string& strKey, int& nLen);
-
-    virtual bool HKeys(const std::string& strKey, std::vector<std::string>& fieldVec);
-    virtual bool HValues(const std::string& strKey, std::vector<std::string>& valueVec);
-    virtual bool HGetAll(const std::string& strKey, std::vector<std::pair<std::string, std::string> >& valueVec);
-
-	///////////////默认：大到小排序 ////////////////////////////////////////////
-	// sorted set系列
-	virtual bool ZAdd(const std::string& strKey, const double nScore, const std::string& strData);
-	virtual bool ZIncrBy(const std::string& strKey, const std::string& strMember, const double nIncrement);
-	// 移除key中的成员member
-    virtual bool ZRem(const std::string& strKey, const std::string& strMember);
-    virtual bool ZRemRangeByRank(const std::string& strKey, const int nStart, const int nStop);
-    virtual bool ZRemRangeByScore(const std::string& strKey, const int nMin, const int nMax);
-
-	// 返回有序集 key 中，成员 member 的 score 值
-	virtual const bool ZScore(const std::string& strKey, const std::string& strMember, double& nScore);
-
-	//累count.得到个数
-	virtual bool ZCard(const std::string& strKey, int& nCount);
-	// score 值在 min 和 max 之间的成员的数量
-	virtual bool ZCount(const std::string& strKey, const int nMin, const int nMax, int& nCount);
-
-	// 返回key中指定区间内的成员, 包含分数:大到小排序
-    virtual bool ZRevRange(const std::string& strKey, const int nStart, const int nStop, std::vector<std::pair<std::string, double> >& memberScoreVec);
-    virtual bool ZRevRank(const std::string& strKey, const std::string& strMember, int& nRank);
-    virtual bool ZRangeByScore(const std::string& strKey, const int nMin, const int nMax, std::vector<std::pair<std::string, double> >& memberScoreVec);
-
-	///////////////////////////////////////////////////////////
-	//push form back of the list
-	//pop form head of the list
-    virtual bool ListPush(const std::string& strKey, const std::string& strValue);
-    virtual bool ListPop(const std::string& strKey, std::string& strValue);
-
-	//>= nStart, < end
-    virtual bool ListRange(const std::string& strKey, const int nStart, const int nEnd, std::vector<std::string>& xList);
-    virtual bool ListLen(const std::string& strKey, int& nLength);
-
-    virtual bool ListIndex(const std::string& strKey, const int nIndex, std::string& strValue);
-    virtual bool ListRem(const std::string& strKey, const int nCount, const std::string& strValue);
-    virtual bool ListSet(const std::string& strKey, const int nCount, const std::string& strValue);
-    virtual bool ListTrim(const std::string& strKey, const int nStar, const int nEnd);
+	//////////////////////////////////////////////////////////////////////////
+    //String
+	virtual bool SET(const std::string& key, const std::string& value);
+	virtual bool GET(const std::string& key, OUT std::string& value);
+	virtual bool SETNX(const std::string& key, const std::string& value);
+	virtual bool SETEX(const std::string& key, const std::string& value, const uint32_t seconds);
+    virtual bool HSET(const std::string& key, const std::string& field, const std::string& value);
+    //////////////////////////////////////////////////////////////////////////
+    //Hash
+    virtual bool HGET(const std::string& key, const std::string& field, OUT std::string& value);
+    virtual bool HMSET(const std::string& key, const std::vector<std::string>& fields, const std::vector<std::string>& values);
+    virtual bool HMGET(const std::string& key, const std::vector<std::string>& fields, OUT std::vector<std::string>& values);
+    virtual bool HEXISTS(const std::string& key, const std::string& fields);
+    virtual bool HDEL(const std::string& key, const std::string& fields);
+    virtual bool HLEN(const std::string& key, OUT int& length);
+    virtual bool HKEYS(const std::string& key, OUT std::vector<std::string>& fields);
+    virtual bool HVALS(const std::string& key, OUT std::vector<std::string>& values);
+    virtual bool HGETALL(const std::string& key, OUT std::vector<std::pair<std::string, std::string>>& values);
+    //////////////////////////////////////////////////////////////////////////
+    //list
+    virtual bool RPUSH(const std::string& key, const std::string& value);
+    virtual bool RPOP(const std::string& key, std::string& value);
+    virtual bool LRANGE(const std::string& key, const int start, const int end, OUT std::vector<std::string>& elements);
+    virtual bool LLEN(const std::string& key, OUT int& length);
+    virtual bool LINDEX(const std::string& key, const int index, OUT std::string& value);
+    virtual bool LREM(const std::string& key, const int count, const std::string& value);
+    virtual bool LSET(const std::string& key, const int count, const std::string& value);
+    virtual bool LTRIM(const std::string& key, const int start, const int end);
+    //////////////////////////////////////////////////////////////////////////
+    //SortedSet
+	virtual bool ZADD(const std::string& key, const double score, const std::string& member);
+    virtual bool ZCARD(const std::string& key, OUT int& count);
+    virtual bool ZCOUNT(const std::string& key, const int min, const int max, OUT int& count);
+	virtual bool ZINCRBY(const std::string& key, const double increment, const std::string& member);
+    virtual bool ZREM(const std::string& key, const std::string& member);
+    virtual bool ZREMRANGEBYRANK(const std::string& key, const int start, const int stop);
+    virtual bool ZREMRANGEBYSCORE(const std::string& key, const int min, const int max);
+    virtual bool ZREVRANGE(const std::string& key, const int start, const int stop, OUT std::vector<std::pair<std::string, double>>& member_scores);
+    virtual bool ZREVRANK(const std::string& key, const std::string& strMember, int& nRank);
+    virtual bool ZRANGEBYSCORE(const std::string& key, const int min, const int max, OUT std::vector<std::pair<std::string, double>>& member_scores);
+	virtual bool ZSCORE(const std::string& key, const std::string& member, OUT double& score);
 
 private:
 	bool mbEnable;
