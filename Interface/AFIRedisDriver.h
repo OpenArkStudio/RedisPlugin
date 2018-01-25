@@ -47,8 +47,8 @@ public:
     virtual bool HGET(const std::string& key, const std::string& field, OUT std::string& value) = 0;
     virtual bool HMSET(const std::string& key, const std::vector<std::string>& fields, const std::vector<std::string>& values) = 0;
     virtual bool HMGET(const std::string& key, const std::vector<std::string>& fields, OUT std::vector<std::string>& values) = 0;
-    virtual bool HEXISTS(const std::string& key, const std::string& fields) = 0;
-    virtual bool HDEL(const std::string& key, const std::string& fields) = 0;
+    virtual bool HEXISTS(const std::string& key, const std::string& field) = 0;
+    virtual bool HDEL(const std::string& key, const std::string& field) = 0;
     virtual bool HLEN(const std::string& key, OUT int& length) = 0;
     virtual bool HKEYS(const std::string& key, OUT std::vector<std::string>& fields) = 0;
     virtual bool HVALS(const std::string& key, OUT std::vector<std::string>& values) = 0;

@@ -183,51 +183,186 @@ bool AFCRedisDriver::GET(const std::string& key, OUT std::string& value)
 
 bool AFCRedisDriver::SETNX(const std::string& key, const std::string& value)
 {
-    return false;
+    if (!enable())
+    {
+        return false;
+    }
+
+    aredis::redis_command cmd;
+    cmd.cmd("SETNX", key, value);
+    aredis::resp_result result;
+    return m_pRedisClient->reply(result);
 }
 
 bool AFCRedisDriver::SETEX(const std::string& key, const std::string& value, const uint32_t seconds)
 {
-    return false;
+    if (!enable())
+    {
+        return false;
+    }
+
+    aredis::redis_command cmd;
+    cmd.cmd("SETEX", key, seconds);
+    aredis::resp_result result;
+    return m_pRedisClient->reply(result);
 }
 
 bool AFCRedisDriver::HSET(const std::string& key, const std::string& field, const std::string& value)
 {
-    return false;
+    if (!enable())
+    {
+        return false;
+    }
+
+    aredis::redis_command cmd;
+    cmd.cmd("HSET", key, field, value);
+    aredis::resp_result result;
+    return m_pRedisClient->reply(result);
 }
 
 bool AFCRedisDriver::HGET(const std::string& key, const std::string& field, OUT std::string& value)
 {
+    if (!enable())
+    {
+        return false;
+    }
+
+    aredis::redis_command cmd;
+    cmd.cmd("HGET", key, field);
+    aredis::resp_result result;
+    if (m_pRedisClient->reply(result))
+    {
+        value = result.dump();
+        return true;
+    }
+
     return false;
 }
 
 bool AFCRedisDriver::HMSET(const std::string& key, const std::vector<std::string>& fields, const std::vector<std::string>& values)
 {
-    return false;
+    if (!enable())
+    {
+        return false;
+    }
+
+    if (fields.size() != values.size())
+    {
+        return false;
+    }
+
+    aredis::redis_command cmd;
+    cmd.cmd("HMSET", key);
+    for (size_t i = 0; i < fields.size(); ++i)
+    {
+        cmd.arg(fields[i]);
+        cmd.arg(values[i]);
+    }
+
+    aredis::resp_result result;
+    return m_pRedisClient->reply(result);
 }
 
 bool AFCRedisDriver::HMGET(const std::string& key, const std::vector<std::string>& fields, OUT std::vector<std::string>& values)
 {
+    if (!enable())
+    {
+        return false;
+    }
+
+    if (fields.empty())
+    {
+        return false;
+    }
+
+    aredis::redis_command cmd;
+    cmd.cmd("HMGET", key);
+    for (size_t i = 0; i < fields.size(); ++i)
+    {
+        cmd.arg(fields[i]);
+    }
+
+    aredis::resp_result result;
+    if (m_pRedisClient->reply(result))
+    {
+        for (size_t i = 0; i < fields.size(); ++i)
+        {
+            aredis::resp_value resp = result.value(i);
+            values.emplace_back(resp.values.svalue);
+        }
+        
+        return true;
+    }
+
     return false;
 }
 
-bool AFCRedisDriver::HEXISTS(const std::string& key, const std::string& fields)
+bool AFCRedisDriver::HEXISTS(const std::string& key, const std::string& field)
 {
-    return false;
+    if (!enable())
+    {
+        return false;
+    }
+
+    aredis::redis_command cmd;
+    cmd.cmd("HEXISTS", key, field);
+    aredis::resp_result result;
+    return m_pRedisClient->reply(result);
 }
 
-bool AFCRedisDriver::HDEL(const std::string& key, const std::string& fields)
+bool AFCRedisDriver::HDEL(const std::string& key, const std::string& field)
 {
-    return false;
+    if (!enable())
+    {
+        return false;
+    }
+
+    aredis::redis_command cmd;
+    cmd.cmd("HDEL", key, field);
+    aredis::resp_result result;
+    return m_pRedisClient->reply(result);
 }
 
 bool AFCRedisDriver::HLEN(const std::string& key, OUT int& length)
 {
+    if (!enable())
+    {
+        return false;
+    }
+
+    aredis::redis_command cmd;
+    cmd.cmd("HLEN", key);
+    aredis::resp_result result;
+    if (m_pRedisClient->reply(result))
+    {
+        length = ARK_LEXICAL_CAST<int>(result.dump());
+        return true;
+    }
+    
     return false;
 }
 
 bool AFCRedisDriver::HKEYS(const std::string& key, OUT std::vector<std::string>& fields)
 {
+    if (!enable())
+    {
+        return false;
+    }
+
+    aredis::redis_command cmd;
+    cmd.cmd("HKEYS", key);
+    aredis::resp_result result;
+    if (m_pRedisClient->reply(result))
+    {
+        for (size_t i = 0; i < result.dvals.size(); ++i)
+        {
+            aredis::resp_value resp = result.value(i);
+            fields.push_back(resp.values.svalue);
+        }
+
+        return true;
+    }
+
     return false;
 }
 
