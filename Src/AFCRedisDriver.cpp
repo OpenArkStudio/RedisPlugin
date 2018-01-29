@@ -190,6 +190,7 @@ bool AFCRedisDriver::SETNX(const std::string& key, const std::string& value)
 
     aredis::redis_command cmd;
     cmd.cmd("SETNX", key, value);
+    m_pRedisClient->command(cmd);
     aredis::resp_result result;
     return m_pRedisClient->reply(result);
 }
@@ -203,6 +204,7 @@ bool AFCRedisDriver::SETEX(const std::string& key, const std::string& value, con
 
     aredis::redis_command cmd;
     cmd.cmd("SETEX", key, seconds);
+    m_pRedisClient->command(cmd);
     aredis::resp_result result;
     return m_pRedisClient->reply(result);
 }
@@ -216,6 +218,7 @@ bool AFCRedisDriver::HSET(const std::string& key, const std::string& field, cons
 
     aredis::redis_command cmd;
     cmd.cmd("HSET", key, field, value);
+    m_pRedisClient->command(cmd);
     aredis::resp_result result;
     return m_pRedisClient->reply(result);
 }
@@ -229,6 +232,7 @@ bool AFCRedisDriver::HGET(const std::string& key, const std::string& field, OUT 
 
     aredis::redis_command cmd;
     cmd.cmd("HGET", key, field);
+    m_pRedisClient->command(cmd);
     aredis::resp_result result;
     if (m_pRedisClient->reply(result))
     {
@@ -258,7 +262,7 @@ bool AFCRedisDriver::HMSET(const std::string& key, const std::vector<std::string
         cmd.arg(fields[i]);
         cmd.arg(values[i]);
     }
-
+    m_pRedisClient->command(cmd);
     aredis::resp_result result;
     return m_pRedisClient->reply(result);
 }
@@ -281,6 +285,8 @@ bool AFCRedisDriver::HMGET(const std::string& key, const std::vector<std::string
     {
         cmd.arg(fields[i]);
     }
+
+    m_pRedisClient->command(cmd);
 
     aredis::resp_result result;
     if (m_pRedisClient->reply(result))
@@ -306,6 +312,7 @@ bool AFCRedisDriver::HEXISTS(const std::string& key, const std::string& field)
 
     aredis::redis_command cmd;
     cmd.cmd("HEXISTS", key, field);
+    m_pRedisClient->command(cmd);
     aredis::resp_result result;
     return m_pRedisClient->reply(result);
 }
@@ -319,6 +326,7 @@ bool AFCRedisDriver::HDEL(const std::string& key, const std::string& field)
 
     aredis::redis_command cmd;
     cmd.cmd("HDEL", key, field);
+    m_pRedisClient->command(cmd);
     aredis::resp_result result;
     return m_pRedisClient->reply(result);
 }
@@ -332,6 +340,7 @@ bool AFCRedisDriver::HLEN(const std::string& key, OUT int& length)
 
     aredis::redis_command cmd;
     cmd.cmd("HLEN", key);
+    m_pRedisClient->command(cmd);
     aredis::resp_result result;
     if (m_pRedisClient->reply(result))
     {
@@ -351,6 +360,7 @@ bool AFCRedisDriver::HKEYS(const std::string& key, OUT std::vector<std::string>&
 
     aredis::redis_command cmd;
     cmd.cmd("HKEYS", key);
+    m_pRedisClient->command(cmd);
     aredis::resp_result result;
     if (m_pRedisClient->reply(result))
     {
@@ -368,52 +378,194 @@ bool AFCRedisDriver::HKEYS(const std::string& key, OUT std::vector<std::string>&
 
 bool AFCRedisDriver::HVALS(const std::string& key, OUT std::vector<std::string>& values)
 {
+    if (!enable())
+    {
+        return false;
+    }
+
+    aredis::redis_command cmd;
+    cmd.cmd("HVALS", key);
+    m_pRedisClient->command(cmd);
+    aredis::resp_result result;
+    if (m_pRedisClient->reply(result))
+    {
+        for (size_t i = 0; i < result.dvals.size(); ++i)
+        {
+            aredis::resp_value resp = result.value(i);
+            values.push_back(resp.values.svalue);
+        }
+
+        return true;
+    }
+
     return false;
 }
 
 bool AFCRedisDriver::HGETALL(const std::string& key, OUT std::vector<std::pair<std::string, std::string>>& values)
 {
+    if (!enable())
+    {
+        return false;
+    }
+
+    aredis::redis_command cmd;
+    cmd.cmd("HGETALL", key);
+    m_pRedisClient->command(cmd);
+    aredis::resp_result result;
+    if (m_pRedisClient->reply(result))
+    {
+        for (size_t i = 0; i < result.dvals.size(); i += 2)
+        {
+            aredis::resp_value resp_field = result.value(i);
+            aredis::resp_value resp_value = result.value(i + 1);
+            std::pair < std::string, std::string> pair_data(resp_field.values.svalue, resp_value.values.svalue);
+            values.push_back(pair_data);
+        }
+
+        return true;
+    }
+
     return false;
 }
 
 bool AFCRedisDriver::RPUSH(const std::string& key, const std::string& value)
 {
-    return false;
+    if (!enable())
+    {
+        return false;
+    }
+
+    aredis::redis_command cmd;
+    cmd.cmd("RPUSH", key, value);
+    m_pRedisClient->command(cmd);
+    aredis::resp_result result;
+    return m_pRedisClient->reply(result);
 }
 
-bool AFCRedisDriver::RPOP(const std::string& key, std::string& value)
+bool AFCRedisDriver::RPOP(const std::string& key, OUT std::string& value)
 {
+    if (!enable())
+    {
+        return false;
+    }
+
+    aredis::redis_command cmd;
+    cmd.cmd("RPOP", key);
+    m_pRedisClient->command(cmd);
+    aredis::resp_result result;
+    if (m_pRedisClient->reply(result))
+    {
+        value = result.dump();
+        return true;
+    }
+
     return false;
 }
 
 bool AFCRedisDriver::LRANGE(const std::string& key, const int start, const int end, OUT std::vector<std::string>& elements)
 {
+    if (!enable())
+    {
+        return false;
+    }
+
+    aredis::redis_command cmd;
+    cmd.cmd("LRANGE", key, start, end);
+    m_pRedisClient->command(cmd);
+    aredis::resp_result result;
+    if (m_pRedisClient->reply(result))
+    {
+        for (size_t i = 0; i < result.dvals.size(); ++i)
+        {
+            elements.emplace_back(result.dvals[i].values.svalue);
+        }
+
+        return true;
+    }
+
     return false;
 }
 
 bool AFCRedisDriver::LLEN(const std::string& key, OUT int& length)
 {
+    if (!enable())
+    {
+        return false;
+    }
+
+    aredis::redis_command cmd;
+    cmd.cmd("LLEN", key);
+    m_pRedisClient->command(cmd);
+    aredis::resp_result result;
+    if (m_pRedisClient->reply(result))
+    {
+        length = ARK_LEXICAL_CAST<int>(result.dump());
+        return true;
+    }
+
     return false;
 }
 
 bool AFCRedisDriver::LINDEX(const std::string& key, const int index, OUT std::string& value)
 {
+    if (!enable())
+    {
+        return false;
+    }
+
+    aredis::redis_command cmd;
+    cmd.cmd("LINDEX", key, index);
+    m_pRedisClient->command(cmd);
+    aredis::resp_result result;
+    if (m_pRedisClient->reply(result))
+    {
+        value = result.dump();
+        return true;
+    }
+
     return false;
 }
 
 bool AFCRedisDriver::LREM(const std::string& key, const int count, const std::string& value)
 {
-    return false;
+    if (!enable())
+    {
+        return false;
+    }
+
+    aredis::redis_command cmd;
+    cmd.cmd("LREM", key, count, value);
+    m_pRedisClient->command(cmd);
+    aredis::resp_result result;
+    return m_pRedisClient->reply(result);
 }
 
-bool AFCRedisDriver::LSET(const std::string& key, const int count, const std::string& value)
+bool AFCRedisDriver::LSET(const std::string& key, const int index, const std::string& value)
 {
-    return false;
+    if (!enable())
+    {
+        return false;
+    }
+
+    aredis::redis_command cmd;
+    cmd.cmd("LSET", key, index, value);
+    m_pRedisClient->command(cmd);
+    aredis::resp_result result;
+    return m_pRedisClient->reply(result);
 }
 
 bool AFCRedisDriver::LTRIM(const std::string& key, const int start, const int end)
 {
-    return false;
+    if (!enable())
+    {
+        return false;
+    }
+
+    aredis::redis_command cmd;
+    cmd.cmd("LTRIM", key, start, end);
+    m_pRedisClient->command(cmd);
+    aredis::resp_result result;
+    return m_pRedisClient->reply(result);
 }
 
 bool AFCRedisDriver::ZADD(const std::string& key, const double score, const std::string& member)

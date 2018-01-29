@@ -60,12 +60,12 @@ public:
     //////////////////////////////////////////////////////////////////////////
     //list
     virtual bool RPUSH(const std::string& key, const std::string& value);
-    virtual bool RPOP(const std::string& key, std::string& value);
+    virtual bool RPOP(const std::string& key, OUT std::string& value);
     virtual bool LRANGE(const std::string& key, const int start, const int end, OUT std::vector<std::string>& elements);
     virtual bool LLEN(const std::string& key, OUT int& length);
     virtual bool LINDEX(const std::string& key, const int index, OUT std::string& value);
     virtual bool LREM(const std::string& key, const int count, const std::string& value);
-    virtual bool LSET(const std::string& key, const int count, const std::string& value);
+    virtual bool LSET(const std::string& key, const int index, const std::string& value);
     virtual bool LTRIM(const std::string& key, const int start, const int end);
     //////////////////////////////////////////////////////////////////////////
     //SortedSet
