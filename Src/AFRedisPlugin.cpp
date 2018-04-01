@@ -23,15 +23,8 @@
 
 #ifdef ARK_DYNAMIC_PLUGIN
 
-ARK_EXPORT void DllStartPlugin(AFIPluginManager* pm)
-{
-    CREATE_PLUGIN(pm, AFRedisPlugin)
-};
-
-ARK_EXPORT void DllStopPlugin(AFIPluginManager* pm)
-{
-    DESTROY_PLUGIN(pm, AFRedisPlugin)
-};
+ARK_DLL_PLUGIN_ENTRY(AFRedisPlugin)
+ARK_DLL_PLUGIN_EXIT(AFRedisPlugin)
 
 #endif
 //////////////////////////////////////////////////////////////////////////

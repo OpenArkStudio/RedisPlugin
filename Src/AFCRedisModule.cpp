@@ -41,7 +41,7 @@ bool AFCRedisModule::Shut()
     return true;
 }
 
-bool AFCRedisModule::AfterInit()
+bool AFCRedisModule::PostInit()
 {
     return true;
 }
